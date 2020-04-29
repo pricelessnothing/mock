@@ -1,56 +1,17 @@
+/* globals __dirname */
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const md5 = require('md5')
+const fs = require('fs')
 
 const app = express()
 
-const config = {
-  systemSerial: '123123123',
-  masterSerial: '11',
-  slaveSerial: '22',
-  slaveIP: '192.168.1.11',
-  distance: '3000',
-  speedLimit: '60',
-  disposition: 'НИК',
-  orientation: 'await component',
-  deviceLocation: '',
-  FTPUsername: 'root',
-  FTPPassword: 'le password',
-  isLocality: true,
-  townSpeedLimit: '40',
-  coordsMaster: '213123123123',
-  coordsSlave: '234124241',
-  systemName: 'СКАТ ДУЭТ',
-  roadLength: '1502',
+const config = JSON.parse(fs.readFileSync(__dirname + '/config.json').toString())
+const state = JSON.parse(fs.readFileSync(__dirname + '/state.json').toString())
 
-  softwareVersion: 'лучшая',
-  buildNumber: '312341234',
-  checksum: 'CRC32',
-
-  verificationNumber: '123',
-  verificatinAgency: 'IEEE',
-  verificationStartTime: '123',
-  verificationEndTime: '123',
-
-  isConnected: false,
-  devicePaired: '',
-  uptime: '67:78',
-  TSState: '',
-  controlRunning: '',
-  controlInspection: '',
-  controlCurrentState: '',
-  connectionStartTime: 0,
-
-  storageVolumeMB: '1024',
-  storageVolumePercent: '97',
-
-  targetId: 0,
-  lastTargetId: 0,
-  fixationCount: '0',
-  fixedVehicles: 0
-}
+const all_data = {...config, ...state}
 
 const users = {
   'root': 'c4ca4238a0b923820dcc509a6f75849b',
@@ -74,7 +35,7 @@ app.use(bodyParser.urlencoded({extend: true}))
 
 app.post('/jrpc', (request, response) => {
   const {method, params, id, jsonrpc} = request.body
-  if (method === 'auth') {
+  if (method === 'login') {
     console.log('sumwun tryna login', params)
     if (!Object.keys(users).includes(params.username)) {
       response.status(404).send({id, method, jsonrpc, error: {
@@ -120,31 +81,35 @@ app.post('/jrpc', (request, response) => {
 
   let paramResponse = {}
   switch(method) {
-    case 'get_config':
+    case 'get_params':
+    case 'get_state':
       paramResponse = getConfig(params)
       break
-    case 'set_config':
+    case 'set_params':
+      console.log('setting param')
       setConfig(params)
+      paramResponse = params
       break
     case 'logout':
       this.sessionId = null
       break
   }
   const responseJson = {jsonrpc, method, result: paramResponse, id}
+  console.log(JSON.stringify(responseJson, null, 2))
   response.send(responseJson)
 })
 
 function getConfig(params) {
   const configPart = {}
   for (const key of params) {
-    configPart[key] = config[key]
+    configPart[key] = all_data[key]
   }
   return configPart
 }
 
 function setConfig(params) {
   for (const key in params) {
-    config[key] = params[key]
+    all_data[key] = params[key]
   }
 }
 
