@@ -38,7 +38,9 @@
     "resultfile_template_name": "vertical_1_2464x2056_itk4.xml",
     "resultfile_templates_dir": "D:/templates/",
     "serial_number": "0000000/0000000",
-    "speed_limit": 0,
+    "speed_limit": 4,
+    "disposition": "НИКНИК",
+    "is_locality": true,
     "speed_timeout": 0,
     "storage_limit_fixations": 0,
     "version": 0

@@ -79,23 +79,33 @@ app.post('/jrpc', (request, response) => {
     return
   }
 
-  let paramResponse = {}
+  let result = null
   switch(method) {
-    case 'get_params':
     case 'get_state':
-      paramResponse = getConfig(params)
+      console.log('getting state')
+      result = state
+      break
+    case 'get_params':
+      console.log('getting param', params)
+      result = getConfig(params)
       break
     case 'set_params':
       console.log('setting param')
-      setConfig(params)
-      paramResponse = params
+      result = setConfig(params)
+      break
+    case 'get_serial_number':
+      console.log('getting serials')
+      result = [111111, 222222]
       break
     case 'logout':
       this.sessionId = null
       break
+    case 'set_mode':
+      console.log(params)
+      result = true
   }
-  const responseJson = {jsonrpc, method, result: paramResponse, id}
-  console.log(JSON.stringify(responseJson, null, 2))
+  const responseJson = {jsonrpc, method, result, id}
+  console.log(responseJson)
   response.send(responseJson)
 })
 
@@ -111,6 +121,7 @@ function setConfig(params) {
   for (const key in params) {
     all_data[key] = params[key]
   }
+  return true
 }
 
 
