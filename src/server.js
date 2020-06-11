@@ -25,7 +25,7 @@ const users = {
 let sessionId = 0
 
 app.use(cors({
-  origin: 'http://127.0.0.1:8080',
+  origin: 'http://127.0.0.1:8081',
   credentials: true
 }))
 app.use(cookieParser())
@@ -57,7 +57,8 @@ app.post('/jrpc', (request, response) => {
       .status(200)
       .header('Access-Control-Allow-Credentials', 'true')
       .send({jsonrpc, method, id, result: {
-        username: params.username
+        username: params.username,
+        rights: 'root'
       }})
     return
   }
